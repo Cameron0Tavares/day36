@@ -20,6 +20,8 @@ def sig_change(stock_prev, stock_curr):
 STOCK = "TSLA"
 COMP_NAME = "Tesla Inc"
 ARTICLE_NUM = 3
+STOCK_ENDPOINT = 'https://www.alphavantage.co/query?'
+NEWS_ENDPOINT = 'https://newsapi.org/v2/everything?'
 
 ## STEP 1: Use https://www.alphavantage.co
 # When STOCK price increase/decreases by 5% between yesterday and the day before yesterday then print("Get News").
@@ -30,8 +32,14 @@ today = today_dt.strftime("%Y-%m-%d")
 yeste = yeste_dt.strftime("%Y-%m-%d")
 
 av_token = get_keys('/Users/camerontavares/.secret/alphavantage_api.json')['api_key']
-av_url = f'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol={STOCK}&apikey={av_token}'
-avr = requests.get(av_url)
+
+stock_params = {
+    'function': 'TIME_SERIES_DAILY_ADJUSTED',
+    'symbol': STOCK,
+    'apikey': av_token
+}
+
+avr = requests.get(STOCK_ENDPOINT, params=stock_params)
 av_data = avr.json()
 
 # print(json.dumps(av_data, indent=4))
@@ -46,8 +54,14 @@ perc_change = 100*sig_change(yeste_open, today_open)
 
 def build_sms():
     nw_token = get_keys('/Users/camerontavares/.secret/newsapi_api.json')['api_key']
-    nw_url = f'https://newsapi.org/v2/everything?q={COMP_NAME}&from={today}&sortBy=popularity&apiKey={nw_token}&pageSize=1'
-    nwr = requests.get(nw_url)
+    news_params = {
+        'q': COMP_NAME,
+        'from': today,
+        'sortBy': 'popularity',
+        'pageSize': 1,
+        'apiKey': nw_token
+    }
+    nwr = requests.get(NEWS_ENDPOINT, params=news_params)
     nw_data = nwr.json()
 
     # print(json.dumps(nw_data, indent=2))
